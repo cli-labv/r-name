@@ -141,8 +141,8 @@ fn test_season_plan_naming() {
         .collect();
     names.sort();
 
-    // t1: intro.mp4 (1), video.mkv (2) ; t2: capitolo.avi (1) → t2 1 episodio.avi
-    let expected = ["1 episodio.mp4", "2 episodio.mkv", "t2 1 episodio.avi"];
+    // t1: intro.mp4 (1), video.mkv (2) ; t2: capitolo.avi (1) → T2 1 episodio.avi
+    let expected = ["1 episodio.mp4", "2 episodio.mkv", "T2 1 episodio.avi"];
     for e in &expected {
         assert!(names.contains(&e.to_string()), "falta {e} en {names:?}");
     }

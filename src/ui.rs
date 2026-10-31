@@ -5,38 +5,28 @@ use crate::table::{Align, Table};
 use crate::undo::{self, LogEntry, UndoLog};
 use console::style;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
-use std::io::{self, IsTerminal, Write};
+use std::io::{self, IsTerminal};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::thread;
 use std::time::Duration;
 
-/// Spinner animado mientras se ejecuta una operación costosa (escaneo o renombrado).
+/// Spinner animado (indicatif) mientras se ejecuta una operación costosa (escaneo o renombrado).
 fn spin_during<T>(message: &str, f: impl FnOnce() -> T) -> T {
     let color_enabled = std::env::var("NO_COLOR").is_err() && io::stdout().is_terminal();
     if !color_enabled {
         return f();
     }
-    let running = Arc::new(AtomicBool::new(true));
-    let running_clone = running.clone();
-    let msg = message.to_string();
-    let spinner = thread::spawn(move || {
-        let frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-        let mut i = 0;
-        while running_clone.load(Ordering::Relaxed) {
-            print!("\r\x1b[K\x1b[1;32m{} {}\x1b[0m", frames[i % frames.len()], msg);
-            let _ = io::stdout().flush();
-            i = (i + 1) % frames.len();
-            thread::sleep(Duration::from_millis(70));
-        }
-        print!("\r\x1b[K");
-        let _ = io::stdout().flush();
-    });
+    let pb = ProgressBar::new_spinner();
+    pb.set_style(
+        ProgressStyle::default_spinner()
+            .template("{spinner:.green} {msg}")
+            .unwrap(),
+    );
+    pb.set_message(message.to_string());
+    pb.enable_steady_tick(Duration::from_millis(70));
     let result = f();
-    running.store(false, Ordering::Relaxed);
-    let _ = spinner.join();
+    pb.finish_and_clear();
     result
 }
 

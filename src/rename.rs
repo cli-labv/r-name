@@ -246,7 +246,7 @@ pub fn build_season_plan(
                 format!("{episode} {title}{ext}")
             } else {
                 // Temporada 2 en adelante: indicador de temporada, número, título.
-                format!("t{season} {episode} {title}{ext}")
+                format!("T{season} {episode} {title}{ext}")
             };
             let destino = path.with_file_name(&name);
             if &destino == path {
