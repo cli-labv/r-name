@@ -4,10 +4,47 @@ set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 BIN="$DIR/dist/r-name-linux-x86_64"
+LOG="$DIR/.cargo-build.log"
+FLAG="$DIR/.cargo-ready"
 
 if [ ! -x "$BIN" ]; then
     echo "· compilando (solo la primera vez)…"
-    ( cd "$DIR" && cargo build --release )
+    rm -f "$FLAG" "$LOG"
+
+    # Compilar en segundo plano; salida completa oculta en un log
+    (
+        cd "$DIR" && cargo build --release >"$LOG" 2>&1
+        touch "$FLAG"
+    ) &
+    CARGO_PID=$!
+
+    # Loader animado con texto verde mientras compila
+    (
+        while [ ! -f "$FLAG" ]; do
+            for ch in ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏; do
+                [ -f "$FLAG" ] && break
+                printf '\r\x1b[K\x1b[32m%s Compilando...\x1b[0m' "$ch"
+                sleep 0.1
+            done
+        done
+        printf '\r\x1b[K'
+    ) &
+    SPIN_PID=$!
+
+    status=0
+    wait "$CARGO_PID" || status=$?
+
+    # Dejar que el loader limpie la línea
+    wait "$SPIN_PID" 2>/dev/null || true
+
+    if [ "$status" -ne 0 ]; then
+        echo
+        echo "Error al compilar. Revisa el log: $LOG"
+        exit "$status"
+    fi
+
+    printf '\r\x1b[K\x1b[32m✔ Listo.\x1b[0m\n'
+
     mkdir -p "$DIR/dist"
     cp "$DIR/target/release/r-name" "$BIN"
 fi
