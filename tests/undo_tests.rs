@@ -1,7 +1,7 @@
 use regex::Regex;
-use renamr::rename::{build_plan, execute};
-use renamr::rules::{CaseMode, RuleSet};
-use renamr::undo::{undo, write_log, UndoLog};
+use r_name::rename::{build_plan, execute};
+use r_name::rules::{CaseMode, RuleSet};
+use r_name::undo::{undo, write_log, UndoLog};
 use std::fs;
 use std::path::PathBuf;
 
@@ -13,7 +13,7 @@ fn rules(replaces: Vec<(Regex, String)>, case: CaseMode, number: bool) -> RuleSe
         by_date: false,
         number,
         ext: None,
-        sort_by: renamr::rules::SortOrder::Name,
+        sort_by: r_name::rules::SortOrder::Name,
     }
 }
 
@@ -72,7 +72,7 @@ fn test_undo_skips_when_target_occupied() {
         fecha: "0".into(),
         revertido_en: None,
         carpeta_escaneada: root.to_path_buf(),
-        renames: vec![renamr::undo::LogEntry {
+        renames: vec![r_name::undo::LogEntry {
             origen: orig.clone(),
             destino: nuevo.clone(),
             revertido: false,

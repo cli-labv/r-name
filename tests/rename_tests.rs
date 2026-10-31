@@ -1,6 +1,6 @@
 use regex::Regex;
-use renamr::rename::{build_plan, build_season_plan, execute};
-use renamr::rules::{CaseMode, RuleSet, SortOrder};
+use r_name::rename::{build_plan, build_season_plan, execute};
+use r_name::rules::{CaseMode, RuleSet, SortOrder};
 use std::fs;
 use std::path::PathBuf;
 
@@ -12,7 +12,7 @@ fn rules(replaces: Vec<(Regex, String)>, case: CaseMode) -> RuleSet {
         by_date: false,
         number: false,
         ext: None,
-        sort_by: renamr::rules::SortOrder::Name,
+        sort_by: r_name::rules::SortOrder::Name,
     }
 }
 
@@ -98,11 +98,11 @@ fn test_swap_names_via_two_phase() {
     let b = write(dir.path(), "b.txt");
 
     let mut plan = build_plan(&[], &rules(vec![], CaseMode::None));
-    plan.entries.push(renamr::rename::RenameEntry {
+    plan.entries.push(r_name::rename::RenameEntry {
         origen: a.clone(),
         destino: b.clone(),
     });
-    plan.entries.push(renamr::rename::RenameEntry {
+    plan.entries.push(r_name::rename::RenameEntry {
         origen: b.clone(),
         destino: a.clone(),
     });

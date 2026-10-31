@@ -3,9 +3,9 @@ use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "renamr",
+    name = "r-name",
     version,
-    about = "renamr · renombra archivos en masa de forma segura"
+    about = "r-name · renombra archivos en masa de forma segura"
 )]
 pub struct Args {
     #[command(subcommand)]

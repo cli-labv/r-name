@@ -6,9 +6,9 @@ pub const INPUT_DIR: &str = "input";
 pub const ENV_FILE: &str = ".env";
 
 /// Carpeta base de la app. Todo lo que genera la app queda aquí, sin tocar el
-/// home ni el PATH del sistema. Se puede fijar con `RENAMR_HOME`.
+/// home ni el PATH del sistema. Se puede fijar con `R_NAME_HOME`.
 pub fn home() -> PathBuf {
-    std::env::var_os("RENAMR_HOME")
+    std::env::var_os("R_NAME_HOME")
         .map(PathBuf::from)
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| PathBuf::from("."))
@@ -23,7 +23,7 @@ pub fn default_input() -> PathBuf {
 }
 
 fn is_log(name: &str) -> bool {
-    name.starts_with("renamr-undo-") && name.ends_with(".json")
+    name.starts_with("r-name-undo-") && name.ends_with(".json")
 }
 
 pub fn all_logs() -> Vec<PathBuf> {
@@ -46,7 +46,7 @@ pub fn latest_log() -> Option<PathBuf> {
 }
 
 pub fn log_path() -> PathBuf {
-    history_dir().join(format!("renamr-undo-{}.json", timestamp()))
+    history_dir().join(format!("r-name-undo-{}.json", timestamp()))
 }
 
 pub fn timestamp() -> String {

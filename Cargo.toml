@@ -1,5 +1,5 @@
 [package]
-name = "renamr"
+name = "r-name"
 version = "0.1.0"
 edition = "2021"
 description = "CLI minimalista para renombrar archivos en masa de forma segura"

@@ -91,7 +91,7 @@ pub fn execute(plan: &RenamePlan) -> RenameReport {
     let mut pending: Vec<(PathBuf, PathBuf, PathBuf)> = Vec::new();
 
     for (i, e) in plan.entries.iter().enumerate() {
-        let temp = e.origen.with_file_name(format!(".renamr-tmp-{i}"));
+        let temp = e.origen.with_file_name(format!(".r-name-tmp-{i}"));
         match fs::rename(&e.origen, &temp) {
             Ok(()) => pending.push((temp, e.origen.clone(), e.destino.clone())),
             Err(err) => report

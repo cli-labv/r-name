@@ -1,10 +1,9 @@
-const APP_NAME: &str = "renamr";
-const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
-
 use std::io::IsTerminal;
 
-const CYAN: &str = "\x1b[1;36m";
-const DIM: &str = "\x1b[2;37m";
+const APP_NAME: &str = "r-name";
+const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+const COLOR: &str = "\x1b[1;36m";
 const RESET: &str = "\x1b[0m";
 
 fn color_enabled() -> bool {
@@ -12,16 +11,15 @@ fn color_enabled() -> bool {
 }
 
 pub fn print_banner() {
-    if !color_enabled() {
-        return;
-    }
-    println!("{CYAN}┌─────────────────────────────┐{RESET}");
-    println!(
-        "{CYAN}│{RESET} {CYAN}{APP_NAME} v{APP_VERSION}{RESET} {DIM}│{RESET}"
-    );
-    println!(
-        "{CYAN}│{RESET} {DIM}renombrado masivo de archivos{RESET} {DIM}│{RESET}"
-    );
-    println!("{CYAN}└─────────────────────────────┘{RESET}");
+    let line_len = APP_NAME.chars().count() + APP_VERSION.chars().count() + 6;
+    let line = "═".repeat(line_len);
+
+    let color = if color_enabled() { COLOR } else { "" };
+    let reset = if color_enabled() { RESET } else { "" };
+
+    println!("{}╭{}╮{}", color, line, reset);
+    println!("{}│  {} {}  │{}", color, APP_NAME, APP_VERSION, reset);
+    println!("{}╰{}╯{}", color, line, reset);
+    println!("{}  renombrador masivo de archivos{}", if color_enabled() { "\x1b[2;37m" } else { "" }, reset);
     println!();
 }

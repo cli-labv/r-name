@@ -1,18 +1,18 @@
 #!/usr/bin/env sh
-# Lanzador local de renamr. Todo queda en esta carpeta (binario y datos).
+# Lanzador local de r-name. Todo queda en esta carpeta (binario y datos).
 set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-BIN="$DIR/dist/renamr-linux-x86_64"
+BIN="$DIR/dist/r-name-linux-x86_64"
 
 if [ ! -x "$BIN" ]; then
     echo "· compilando (solo la primera vez)…"
     ( cd "$DIR" && cargo build --release )
     mkdir -p "$DIR/dist"
-    cp "$DIR/target/release/renamr" "$BIN"
+    cp "$DIR/target/release/r-name" "$BIN"
 fi
 
-RENAMR_HOME="$DIR"
-export RENAMR_HOME
+R_NAME_HOME="$DIR"
+export R_NAME_HOME
 cd "$DIR"
 exec "$BIN" "$@"

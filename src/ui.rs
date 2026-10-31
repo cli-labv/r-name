@@ -26,12 +26,12 @@ fn spin_during<T>(message: &str, f: impl FnOnce() -> T) -> T {
         let frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
         let mut i = 0;
         while running_clone.load(Ordering::Relaxed) {
-            print!("\r\033[K\x1b[36m{} {}\x1b[0m", frames[i % frames.len()], msg);
+            print!("\r\x1b[K\x1b[36m{} {}\x1b[0m", frames[i % frames.len()], msg);
             let _ = io::stdout().flush();
             i = (i + 1) % frames.len();
             thread::sleep(Duration::from_millis(80));
         }
-        print!("\r\033[K");
+        print!("\r\x1b[K");
         let _ = io::stdout().flush();
     });
     let result = f();

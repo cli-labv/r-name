@@ -1,5 +1,5 @@
 use regex::Regex;
-use renamr::rules::{self, CaseMode, RuleSet};
+use r_name::rules::{self, CaseMode, RuleSet};
 use std::path::Path;
 
 fn rs(replaces: Vec<(Regex, String)>, case: CaseMode, trim: bool) -> RuleSet {
@@ -10,7 +10,7 @@ fn rs(replaces: Vec<(Regex, String)>, case: CaseMode, trim: bool) -> RuleSet {
         by_date: false,
         number: false,
         ext: None,
-        sort_by: renamr::rules::SortOrder::Name,
+        sort_by: r_name::rules::SortOrder::Name,
     }
 }
 

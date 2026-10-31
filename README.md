@@ -1,4 +1,4 @@
-# 🏷️ renamr
+# 🏷️ r-name
 
 CLI minimalista en **Rust** para **renombrar archivos en masa** de forma segura:
 regex, mayúsculas/minúsculas, limpieza de nombres, numeración, cambio de
@@ -10,7 +10,7 @@ pide confirmación y guarda un historial para **deshacer**. Cien por ciento
 
 ## 🎯 ¿Para qué sirve?
 Cuando tienes carpetas con nombres desordenados (`IMG_0001 (2).jpg`, espacios,
-letras raras), renamr:
+letras raras), r-name:
 - 🔁 aplica **regex** buscar/reemplazar,
 - 🧹 limpia espacios y caracteres raros (queda `A-Za-z0-9._-`),
 - 🔢 numera en secuencia (`nombre_0001.ext`),
@@ -70,7 +70,7 @@ El menú es directo, con pocas preguntas y orientado al objetivo:
 ./start --dry-run                    # solo muestra la tabla, no renombra
 ./start --yes                        # aplica sin preguntar
 ./start undo                         # revierte la última ejecución
-./start undo json/renamr-undo-…json  # revierte una ejecución concreta
+./start undo json/r-name-undo-…json  # revierte una ejecución concreta
 ./start clean                        # borra el historial local
 ```
 > 🧩 Los flags se combinan: `./start --lower --trim --number --ext md`. Si pasás cualquier flag, se usa el modo directo (sin menú).
@@ -82,8 +82,8 @@ El menú es directo, con pocas preguntas y orientado al objetivo:
 ./start --set fotos/           # sobre otra carpeta
 ```
 Lee el archivo `.env` de la carpeta de la app:
-- `RENAMR_TITLE` → título de la serie. Si está vacío, se usa el nombre de la carpeta superior que agrupe a las temporadas (ej. `re zero`).
-- `RENAMR_SORT` → orden de episodios: `name`, `name-desc`, `created-desc`, `modified-asc`, `modified-desc` (por defecto `name`).
+- `R_NAME_TITLE` → título de la serie. Si está vacío, se usa el nombre de la carpeta superior que agrupe a las temporadas (ej. `re zero`).
+- `R_NAME_SORT` → orden de episodios: `name`, `name-desc`, `created-desc`, `modified-asc`, `modified-desc` (por defecto `name`).
 
 Aplica directo sin pedir confirmación. Muestra una vista previa informativa (solo nombres de archivo, sin rutas).
 
@@ -91,7 +91,7 @@ Aplica directo sin pedir confirmación. Muestra una vista previa informativa (so
 
 ## 🗂️ Estructura
 ```
-renamr/
+r-name/
 ├── input/   ← archivos a renombrar (por defecto)
 └── json/    ← historial JSON para undo
 ```
@@ -100,7 +100,7 @@ renamr/
 - 🦀 **Rust** con `clap` (CLI derive), `regex` (buscar/reemplazar), `jwalk`
   (escaneo recursivo), `kamadak-exif` (fecha EXIF de fotos), `dialoguer` +
   `console` (confirmación y tablas con render propio, sin TUI pesada).
-- 🔒 Sin escrituras fuera de la carpeta local (`RENAMR_HOME`, por defecto el
+- 🔒 Sin escrituras fuera de la carpeta local (`R_NAME_HOME`, por defecto el
   directorio de la app).
 
 ## 📄 Licencia

@@ -1,7 +1,7 @@
 use clap::Parser;
-use renamr::cli::{Args, Command};
-use renamr::{banner, clean, paths, rules, ui};
-use renamr::rules::{CaseMode, SortOrder};
+use r_name::cli::{Args, Command};
+use r_name::{banner, clean, paths, rules, ui};
+use r_name::rules::{CaseMode, SortOrder};
 
 fn main() {
     banner::print_banner();
@@ -23,11 +23,11 @@ fn main() {
             eprintln!("No es una carpeta válida: {}", root.display());
             std::process::exit(1);
         }
-        let title = std::env::var("RENAMR_TITLE")
+        let title = std::env::var("R_NAME_TITLE")
             .ok()
             .filter(|v| !v.trim().is_empty())
             .map(|v| v.trim().to_string());
-        let sort_by = std::env::var("RENAMR_SORT")
+        let sort_by = std::env::var("R_NAME_SORT")
             .map(|v| paths::parse_sort_order(&v))
             .unwrap_or(SortOrder::Name);
         if let Err(e) = ui::run_season_direct(root, title, sort_by, true) {
@@ -118,8 +118,8 @@ fn main() {
 
 fn run_undo(log: Option<std::path::PathBuf>) {
     let result = match log {
-        Some(path) => renamr::undo::undo(&path),
-        None => renamr::undo::undo_latest(),
+        Some(path) => r_name::undo::undo(&path),
+        None => r_name::undo::undo_latest(),
     };
     match result {
         Ok(r) => {
