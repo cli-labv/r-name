@@ -8,6 +8,17 @@ pub enum CaseMode {
     Upper,
 }
 
+/// Orden de recorrido de los archivos antes de renombrar.
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
+pub enum SortOrder {
+    #[default]
+    Name,
+    NameDesc,
+    CreatedDesc,
+    ModifiedAsc,
+    ModifiedDesc,
+}
+
 pub struct RuleSet {
     pub replaces: Vec<(Regex, String)>,
     pub case: CaseMode,
@@ -15,6 +26,7 @@ pub struct RuleSet {
     pub by_date: bool,
     pub number: bool,
     pub ext: Option<String>,
+    pub sort_by: SortOrder,
 }
 
 impl RuleSet {

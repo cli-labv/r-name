@@ -1,15 +1,59 @@
 use clap::Parser;
 use renamr::cli::{Args, Command};
-use renamr::{clean, paths, rules, ui};
-use renamr::rules::CaseMode;
+use renamr::{banner, clean, paths, rules, ui};
+use renamr::rules::{CaseMode, SortOrder};
 
 fn main() {
+    banner::print_banner();
+    paths::load_env();
+
     let args = Args::parse();
 
     match args.command {
         Some(Command::Undo { log }) => return run_undo(log),
         Some(Command::Clean) => return run_clean(),
         None => {}
+    }
+
+    // Modo temporada directo: ./start --set [--path CARPETA]
+    // Siempre aplica directo sin pedir confirmación.
+    if args.set {
+        let root = args.path.clone().unwrap_or_else(paths::default_input);
+        if !root.is_dir() {
+            eprintln!("No es una carpeta válida: {}", root.display());
+            std::process::exit(1);
+        }
+        let title = std::env::var("RENAMR_TITLE")
+            .ok()
+            .filter(|v| !v.trim().is_empty())
+            .map(|v| v.trim().to_string());
+        let sort_by = std::env::var("RENAMR_SORT")
+            .map(|v| paths::parse_sort_order(&v))
+            .unwrap_or(SortOrder::Name);
+        if let Err(e) = ui::run_season_direct(root, title, sort_by, true) {
+            eprintln!("Error: {e}");
+            std::process::exit(1);
+        }
+        return;
+    }
+
+    let has_flags = !args.replace.is_empty()
+        || args.lower
+        || args.upper
+        || args.trim
+        || args.number
+        || args.ext.is_some()
+        || args.by_date
+        || args.dry_run
+        || args.yes;
+
+    if args.command.is_none() && !has_flags && ui::has_tty_menu() {
+        let root = args.path.clone().unwrap_or_else(paths::default_input);
+        if let Err(e) = ui::interactive_menu(root) {
+            eprintln!("Error: {e}");
+            std::process::exit(1);
+        }
+        return;
     }
 
     let root = args.path.clone().unwrap_or_else(paths::default_input);
@@ -51,6 +95,7 @@ fn main() {
         by_date: args.by_date,
         number: args.number,
         ext: args.ext.clone(),
+        sort_by: SortOrder::Name,
     };
     if rs.is_empty() {
         eprintln!(

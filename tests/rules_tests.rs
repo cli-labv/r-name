@@ -10,6 +10,7 @@ fn rs(replaces: Vec<(Regex, String)>, case: CaseMode, trim: bool) -> RuleSet {
         by_date: false,
         number: false,
         ext: None,
+        sort_by: renamr::rules::SortOrder::Name,
     }
 }
 

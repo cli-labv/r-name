@@ -1,6 +1,6 @@
 use regex::Regex;
-use renamr::rename::{build_plan, execute};
-use renamr::rules::{CaseMode, RuleSet};
+use renamr::rename::{build_plan, build_season_plan, execute};
+use renamr::rules::{CaseMode, RuleSet, SortOrder};
 use std::fs;
 use std::path::PathBuf;
 
@@ -12,6 +12,7 @@ fn rules(replaces: Vec<(Regex, String)>, case: CaseMode) -> RuleSet {
         by_date: false,
         number: false,
         ext: None,
+        sort_by: renamr::rules::SortOrder::Name,
     }
 }
 
@@ -110,4 +111,39 @@ fn test_swap_names_via_two_phase() {
     assert_eq!(report.renamed, 2, "{:?}", report.errors);
     assert!(a.exists() && b.exists());
     assert_eq!(fs::read_to_string(&a).unwrap(), "x");
+}
+
+#[test]
+fn test_season_plan_naming() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+
+    std::fs::create_dir_all(root.join("t1")).unwrap();
+    std::fs::create_dir_all(root.join("t2")).unwrap();
+    std::fs::write(root.join("t1/video.mkv"), b"x").unwrap();
+    std::fs::write(root.join("t1/intro.mp4"), b"x").unwrap();
+    std::fs::write(root.join("t2/capitulo.avi"), b"x").unwrap();
+
+    let files: Vec<std::path::PathBuf> = vec![
+        root.join("t1/video.mkv"),
+        root.join("t1/intro.mp4"),
+        root.join("t2/capitulo.avi"),
+    ];
+
+    let plan = build_season_plan(&files, root, "episodio", SortOrder::Name);
+    assert_eq!(plan.skipped.len(), 0, "{:?}", plan.skipped);
+    assert_eq!(plan.entries.len(), 3);
+
+    let mut names: Vec<String> = plan
+        .entries
+        .iter()
+        .map(|e| e.destino.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    names.sort();
+
+    // t1: intro.mp4 (1), video.mkv (2) ; t2: capitolo.avi (1) → t2 1 episodio.avi
+    let expected = ["1 episodio.mp4", "2 episodio.mkv", "t2 1 episodio.avi"];
+    for e in &expected {
+        assert!(names.contains(&e.to_string()), "falta {e} en {names:?}");
+    }
 }

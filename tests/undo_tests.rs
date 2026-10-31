@@ -13,6 +13,7 @@ fn rules(replaces: Vec<(Regex, String)>, case: CaseMode, number: bool) -> RuleSe
         by_date: false,
         number,
         ext: None,
+        sort_by: renamr::rules::SortOrder::Name,
     }
 }
 

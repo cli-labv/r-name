@@ -3,6 +3,7 @@ pub mod cli;
 pub mod paths;
 pub mod rename;
 pub mod rules;
+pub mod banner;
 pub mod table;
 pub mod ui;
 pub mod undo;

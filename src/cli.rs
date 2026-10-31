@@ -50,6 +50,10 @@ pub struct Args {
     /// Aplica sin preguntar
     #[arg(long, short = 'y')]
     pub yes: bool,
+
+    /// Modo temporada directo (sin menú interactivo). Requiere --yes para aplicar sin confirmar.
+    #[arg(long = "set")]
+    pub set: bool,
 }
 
 #[derive(Subcommand, Debug)]

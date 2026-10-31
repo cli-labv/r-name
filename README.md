@@ -25,6 +25,7 @@ letras raras), renamr:
 - ↩️ `undo` revierte la última ejecución (o una concreta pasando el log).
 - 🧹 `clean` borra el historial local (nunca tus archivos).
 - 🔒 Todo queda en la carpeta de la app: **nada** sale a tu HOME ni al PATH.
+- 🎨 Banner de arranque conciso y spinner de progreso (escaneo/renombrado), sin texto de sobra.
 
 ## 🧰 Requisitos
 - 🦀 Rust + Cargo instalados (`rustup`).
@@ -38,8 +39,25 @@ La **primera vez** compila (tarda un poco). Las siguientes son instantáneas:
 ```
 
 ## 🎮 Uso
+
+### Menú interactivo (al ejecutar sin flags)
 ```bash
-./start                              # aplica reglas a ./input
+./start                              # abre el menú interactivo (requiere terminal)
+```
+El menú es directo, con pocas preguntas y orientado al objetivo:
+
+1. **Resumen** → se muestra cuántos archivos hay y cómo se distribuyen por carpeta (t1, t2, …).
+2. **Elegir modo**:
+   - **Renombrar por temporada (carpetas)** → ideal para series. Detecta automáticamente si hay una carpeta superior que agrupe a todas las temporadas (ej. `re zero/` con `t1/`, `t2/` dentro) y usa su nombre como título por defecto (placeholder dinámico). Pedís el **título de la serie** (una pregunta) y el **orden de renombrado** (nombre asc/desc, fecha creación reciente primero, fecha modificación asc/desc).
+     - Temporada 1 → `1 titulo.ext` (solo número de episodio al inicio, luego el título).
+     - Temporada 2 en adelante → `t2 1 titulo.ext`, `t3 1 titulo.ext`… (indicador de temporada, número de episodio, luego el título).
+     Se conserva la extensión original.
+   - **Acciones rápidas (clásico)** → minúsculas, mayúsculas, limpiar nombres, numerar, cambiar extensión, prefijo por fecha.
+3. **Preview** → tabla `Actual → Nuevo`.
+4. **Confirmar** → aplicar o cancelar. Todo queda registrado para poder deshacer (`undo`).
+
+### Modo directo (flags)
+```bash
 ./start fotos/                       # trabaja sobre la carpeta que elijas
 ./start --replace "IMG_=Vacaciones"  # regex: buscar=reemplazo
 ./start --replace "\s+=_"            # espacios → guion bajo (repetible)
@@ -55,7 +73,21 @@ La **primera vez** compila (tarda un poco). Las siguientes son instantáneas:
 ./start undo json/renamr-undo-…json  # revierte una ejecución concreta
 ./start clean                        # borra el historial local
 ```
-> 🧩 Los flags se combinan: `./start --lower --trim --number --ext md`
+> 🧩 Los flags se combinan: `./start --lower --trim --number --ext md`. Si pasás cualquier flag, se usa el modo directo (sin menú).
+
+### Modo temporada directo (sin menú, sin preguntar)
+```bash
+./start --set                  # renombra por temporada usando .env
+./start --set .                # sobre la carpeta actual
+./start --set fotos/           # sobre otra carpeta
+```
+Lee el archivo `.env` de la carpeta de la app:
+- `RENAMR_TITLE` → título de la serie. Si está vacío, se usa el nombre de la carpeta superior que agrupe a las temporadas (ej. `re zero`).
+- `RENAMR_SORT` → orden de episodios: `name`, `name-desc`, `created-desc`, `modified-asc`, `modified-desc` (por defecto `name`).
+
+Aplica directo sin pedir confirmación. Muestra una vista previa informativa (solo nombres de archivo, sin rutas).
+
+## 🗂️ Estructura
 
 ## 🗂️ Estructura
 ```

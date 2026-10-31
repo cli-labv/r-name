@@ -12,4 +12,5 @@ mkdir -p "$DIR/dist"
 cp "$DIR/target/release/renamr" "$DIR/dist/renamr-linux-x86_64"
 chmod +x "$DIR/start" 2>/dev/null || true
 
-echo "✓ listo. Usá:  ./start --help"
+echo "✓ listo. Usá:  ./start        (menú interactivo)"
+echo "             ./start --set     (renombrado directo por temporada desde .env, sin preguntar)"
