@@ -7,6 +7,17 @@ BIN="$DIR/dist/r-name-linux-x86_64"
 LOG="$DIR/.cargo-build.log"
 FLAG="$DIR/.cargo-ready"
 
+# Colores (tput si está disponible, fallback a escapes octales POSIX)
+if command -v tput >/dev/null 2>&1; then
+    GREEN="$(tput setaf 2)"
+    BOLD="$(tput bold)"
+    RESET="$(tput sgr0)"
+else
+    GREEN="\033[32m"
+    BOLD="\033[1m"
+    RESET="\033[0m"
+fi
+
 if [ ! -x "$BIN" ]; then
     echo "· compilando (solo la primera vez)…"
     rm -f "$FLAG" "$LOG"
@@ -18,32 +29,27 @@ if [ ! -x "$BIN" ]; then
     ) &
     CARGO_PID=$!
 
-    # Loader animado con texto verde mientras compila
-    (
-        while [ ! -f "$FLAG" ]; do
-            for ch in ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏; do
-                [ -f "$FLAG" ] && break
-                printf '\r\x1b[K\x1b[32m%s Compilando...\x1b[0m' "$ch"
-                sleep 0.1
-            done
-        done
-        printf '\r\x1b[K'
-    ) &
-    SPIN_PID=$!
+    # Loader circular animado mientras compila
+    SPIN="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    i=0
+    while kill -0 "$CARGO_PID" 2>/dev/null; do
+        pos=$((i + 1))
+        ch=$(printf '%s' "$SPIN" | cut -c"$pos")
+        printf "\r%s%s Compilando r-name...%s" "$BOLD$GREEN" "$ch" "$RESET"
+        i=$(( (i + 1) % 10 ))
+        sleep 0.1
+    done
 
     status=0
     wait "$CARGO_PID" || status=$?
 
-    # Dejar que el loader limpie la línea
-    wait "$SPIN_PID" 2>/dev/null || true
-
     if [ "$status" -ne 0 ]; then
-        echo
+        printf "\r\x1b[K\n"
         echo "Error al compilar. Revisa el log: $LOG"
         exit "$status"
     fi
 
-    printf '\r\x1b[K\x1b[32m✔ Listo.\x1b[0m\n'
+    printf "\r\x1b[K%s%s✔ Compilado con éxito.%s\n" "$BOLD$GREEN" "" "$RESET"
 
     mkdir -p "$DIR/dist"
     cp "$DIR/target/release/r-name" "$BIN"
