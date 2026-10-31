@@ -13,7 +13,7 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
-/// Spinner ligero mientras se ejecuta una operación costosa (escaneo o renombrado).
+/// Spinner animado mientras se ejecuta una operación costosa (escaneo o renombrado).
 fn spin_during<T>(message: &str, f: impl FnOnce() -> T) -> T {
     let color_enabled = std::env::var("NO_COLOR").is_err() && io::stdout().is_terminal();
     if !color_enabled {
@@ -26,10 +26,10 @@ fn spin_during<T>(message: &str, f: impl FnOnce() -> T) -> T {
         let frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
         let mut i = 0;
         while running_clone.load(Ordering::Relaxed) {
-            print!("\r\x1b[K\x1b[36m{} {}\x1b[0m", frames[i % frames.len()], msg);
+            print!("\r\x1b[K\x1b[1;32m{} {}\x1b[0m", frames[i % frames.len()], msg);
             let _ = io::stdout().flush();
             i = (i + 1) % frames.len();
-            thread::sleep(Duration::from_millis(80));
+            thread::sleep(Duration::from_millis(70));
         }
         print!("\r\x1b[K");
         let _ = io::stdout().flush();
