@@ -52,6 +52,8 @@ El menú es directo, con pocas preguntas y orientado al objetivo:
      - Temporada 1 → `1 titulo.ext` (solo número de episodio al inicio, luego el título).
      - Temporada 2 en adelante → `t2 1 titulo.ext`, `t3 1 titulo.ext`… (indicador de temporada, número de episodio, luego el título).
      Se conserva la extensión original.
+      - Si hay **varias series** (carpetas distintas), cada una se renombra con **su propio nombre de carpeta**, no con un título único.
+      - Si no hay subcarpetas de temporada, los archivos se tratan como **temporada 1** y se renombran en su mismo sitio (sin crear carpetas `t1`).
    - **Acciones rápidas (clásico)** → minúsculas, mayúsculas, limpiar nombres, numerar, cambiar extensión, prefijo por fecha.
 3. **Preview** → tabla `Actual → Nuevo`.
 4. **Confirmar** → aplicar o cancelar. Todo queda registrado para poder deshacer (`undo`).
@@ -86,6 +88,7 @@ Lee el archivo `.env` de la carpeta de la app:
 - `R_NAME_SORT` → orden de episodios: `name`, `name-desc`, `created-desc`, `modified-asc`, `modified-desc` (por defecto `name`).
 
 Aplica directo sin pedir confirmación. Muestra una vista previa informativa (solo nombres de archivo, sin rutas).
+> Con varias series se usa el nombre de cada carpeta; sin carpetas de temporada, todo se trata como temporada 1 en el mismo sitio.
 
 ## 🗂️ Estructura
 

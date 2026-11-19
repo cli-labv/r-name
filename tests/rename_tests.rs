@@ -147,3 +147,115 @@ fn test_season_plan_naming() {
         assert!(names.contains(&e.to_string()), "falta {e} en {names:?}");
     }
 }
+
+#[test]
+fn test_season_plan_uses_one_title_per_series() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+    for f in [
+        "serieA/t1/a.mkv",
+        "serieA/t1/b.mkv",
+        "serieB/t1/c.mkv",
+        "serieB/t2/d.mkv",
+    ] {
+        let p = root.join(f);
+        fs::create_dir_all(p.parent().unwrap()).unwrap();
+        fs::write(&p, b"x").unwrap();
+    }
+
+    let files = vec![
+        root.join("serieA/t1/b.mkv"),
+        root.join("serieA/t1/a.mkv"),
+        root.join("serieB/t1/c.mkv"),
+        root.join("serieB/t2/d.mkv"),
+    ];
+    let plan = build_season_plan(&files, root, "episodio", SortOrder::Name);
+    assert!(plan.skipped.is_empty(), "{:?}", plan.skipped);
+    assert_eq!(plan.entries.len(), 4);
+
+    let actual: std::collections::HashSet<(String, String)> = plan
+        .entries
+        .iter()
+        .map(|e| {
+            let folder = e
+                .destino
+                .parent()
+                .unwrap()
+                .strip_prefix(root)
+                .unwrap()
+                .to_string_lossy()
+                .into_owned();
+            let name = e.destino.file_name().unwrap().to_string_lossy().into_owned();
+            (folder, name)
+        })
+        .collect();
+    let expected: std::collections::HashSet<(String, String)> = [
+        ("serieA/t1", "1 serieA.mkv"),
+        ("serieA/t1", "2 serieA.mkv"),
+        ("serieB/t1", "1 serieB.mkv"),
+        ("serieB/t2", "T2 1 serieB.mkv"),
+    ]
+    .into_iter()
+    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect();
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn test_season_plan_loose_files_are_season_one() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+    let a = write(root, "cap2.mkv");
+    let b = write(root, "cap1.mkv");
+
+    let plan = build_season_plan(&[a, b], root, "serie", SortOrder::Name);
+    assert!(plan.skipped.is_empty(), "{:?}", plan.skipped);
+    let names: Vec<String> = plan
+        .entries
+        .iter()
+        .map(|e| e.destino.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, vec!["1 serie.mkv", "2 serie.mkv"]);
+    assert!(plan.entries.iter().all(|e| e.destino.parent() == Some(root)));
+}
+
+#[test]
+fn test_season_plan_folder_without_number_is_season_one() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+    let folder = root.join("serie");
+    fs::create_dir_all(&folder).unwrap();
+    let a = write(&folder, "cap2.mkv");
+    let b = write(&folder, "cap1.mkv");
+
+    let plan = build_season_plan(&[a, b], root, "titulo", SortOrder::Name);
+    assert!(plan.skipped.is_empty(), "{:?}", plan.skipped);
+    let names: Vec<String> = plan
+        .entries
+        .iter()
+        .map(|e| e.destino.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, vec!["1 titulo.mkv", "2 titulo.mkv"]);
+    assert!(plan.entries.iter().all(|e| e.destino.parent() == Some(folder.as_path())));
+}
+
+#[test]
+fn test_season_plan_multiple_series_without_season_folders() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path();
+    for f in ["alpha/a.mkv", "beta/b.mkv"] {
+        let p = root.join(f);
+        fs::create_dir_all(p.parent().unwrap()).unwrap();
+        fs::write(&p, b"x").unwrap();
+    }
+
+    let files = vec![root.join("alpha/a.mkv"), root.join("beta/b.mkv")];
+    let plan = build_season_plan(&files, root, "episodio", SortOrder::Name);
+    assert!(plan.skipped.is_empty(), "{:?}", plan.skipped);
+    let names: Vec<String> = plan
+        .entries
+        .iter()
+        .map(|e| e.destino.file_name().unwrap().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(names, vec!["1 alpha.mkv", "1 beta.mkv"]);
+}

@@ -193,22 +193,37 @@ fn detect_common_parent(files: &[PathBuf], root: &Path) -> Option<PathBuf> {
 
 /// Flujo por temporada: detecta nombre de serie por defecto, pide título y orden de renombrado.
 fn season_flow(theme: &ColorfulTheme, root: &Path, files: &[PathBuf]) -> io::Result<()> {
-    // 1. Detectar carpeta superior común (nombre de la serie por defecto)
-    let default_title = detect_common_parent(files, root)
-        .as_ref()
-        .and_then(|p| p.file_name().map(|s| s.to_string_lossy().into_owned()))
-        .unwrap_or_else(|| String::from("episodio"));
+    // 1. Varias series: cada una conserva el nombre de su carpeta.
+    let series = rename::detected_series(files, root);
+    let title: String = if series.len() > 1 {
+        println!(
+            "{}",
+            style(format!(
+                "📚 {} series detectadas: {}. Cada una usará el nombre de su carpeta.",
+                series.len(),
+                series.join(", ")
+            ))
+            .cyan()
+        );
+        String::from("episodio")
+    } else {
+        let default_title = detect_common_parent(files, root)
+            .as_ref()
+            .and_then(|p| p.file_name().map(|s| s.to_string_lossy().into_owned()))
+            .unwrap_or_else(|| String::from("episodio"));
 
-    let title: String = Input::with_theme(theme)
-        .with_prompt("Título de la serie")
-        .default(default_title)
-        .interact()
-        .map_err(|e| io::Error::other(e.to_string()))?;
+        let title: String = Input::with_theme(theme)
+            .with_prompt("Título de la serie")
+            .default(default_title)
+            .interact()
+            .map_err(|e| io::Error::other(e.to_string()))?;
 
-    if title.trim().is_empty() {
-        println!("{}", style("El título no puede estar vacío.").red());
-        return Ok(());
-    }
+        if title.trim().is_empty() {
+            println!("{}", style("El título no puede estar vacío.").red());
+            return Ok(());
+        }
+        title
+    };
 
     // 2. Elegir orden de renombrado
     let order_options = [
@@ -300,6 +315,19 @@ pub fn run_season_direct(
         println!("   └─ {folder}: {n} archivo{}", if *n > 1 { "s" } else { "" });
     }
     println!();
+
+    let series = rename::detected_series(&files, &root);
+    if series.len() > 1 {
+        println!(
+            "{}",
+            style(format!(
+                "📚 {} series detectadas: {}. Cada una usará el nombre de su carpeta.",
+                series.len(),
+                series.join(", ")
+            ))
+            .cyan()
+        );
+    }
 
     // Título: del .env o detectado de carpeta superior
     let default_title = detect_common_parent(&files, &root)
